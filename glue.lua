@@ -79,7 +79,7 @@ elseif(args[1] == "search") then
   if(code == 200) then
     content = json.parse(content)
   end
-  for _,drop in content do
+  for _,drop in pairs(content) do
     print(drop.author .. "/" .. drop.name .. ":" .. drop.version)
   end
 elseif(args[1] == "install") then
