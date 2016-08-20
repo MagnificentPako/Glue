@@ -11,6 +11,7 @@ local autoload_code = [[
 
 if(args[1] == "install-glue-internal") then
   --Make gluelist mirror repolist for now
+  print("Installing glue!")
   fs.copy("/etc/repolist", "/etc/gluelist")
 elseif(args[1] == "uninstall-glue-internal") then
   fs.remove("/etc/gluelist")
