@@ -81,8 +81,10 @@ elseif(args[1] == "search") then
   end
   print("Search results for '" .. args[2] .. "'")
   for _,drop in pairs(content.drops) do
+    term.setTextColor(colors.lightGray)
+    write(drop.author)
     term.setTextColor(colors.gray)
-    write(drop.author .."/")
+    write("/")
     term.setTextColor(colors.orange)
     write(drop.name)
     term.setTextColor(colors.gray)
