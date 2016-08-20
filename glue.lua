@@ -79,9 +79,18 @@ elseif(args[1] == "search") then
   if(code == 200) then
     content = json.parse(content)
   end
-  for _,drop in pairs(content) do
-    print(drop.author .. "/" .. drop.name .. ":" .. drop.version)
+  print("Search results for '" .. args[2] .. "'")
+  for _,drop in pairs(content.drops) do
+    term.setTextColor(colors.gray)
+    write(drop.author .."/")
+    term.setTextColor(colors.orange)
+    write(drop.name)
+    term.setTextColor(colors.gray)
+    write(":")
+    term.setTextColor(colors.yellow)
+    print(drop.version)
   end
+  term.setTextColor(colors.white)
 elseif(args[1] == "install") then
 
 end
