@@ -79,7 +79,9 @@ elseif(args[1] == "search") then
   if(code == 200) then
     content = json.parse(content)
   end
-  print(textutils.serialize(content))
+  for _,drop in content do
+    print(drop.author .. "/" .. drop.name .. ":" .. drop.version)
+  end
 elseif(args[1] == "install") then
 
 end
