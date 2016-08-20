@@ -15,7 +15,7 @@ if(args[1] == "install-glue-internal") then
 elseif(args[1] == "uninstall-glue-internal") then
   fs.remove("/etc/gluelist")
 elseif(args[1] == "init") then
-  local dir = args[2] == nil and fs.getDir(shell.resolve(shell.getRunningProgram())) or args[2]
+  local dir = args[2] == nil and shell.dir() or args[2]
   if(not fs.isDir(dir)) then fs.makeDir(dir) end
   local handle = fs.open(fsc(dir,"GlueFile"),"w")
   handle.write("--Insert dependencies here")
