@@ -12,7 +12,7 @@ local function parseOptions(options)
   return output
 end
 
-local request(method, call, options)
+local function request(method, call, options)
   local handle
   if(method == "get") then
     handle = http.get(base_url..call..parseOptions(options))
