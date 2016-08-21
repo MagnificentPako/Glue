@@ -31,7 +31,21 @@ end
 local autoload_code = [[
   local current = fs.getDir(shell.resolve(shell.getRunningProgram()))
   for _,v in pairs(fs.list(fs.combine(current, "dep"))) do
-    dofile(fs.combine(fs.combine(current,"dep"),v))
+    local settings_file = fs.open(fs.combine(current,"dep/"..v.."/settings.lua"),"r")
+    localsettings = loadstring("return " .. settings_file.readAll())()
+    settings_file.close()
+
+    local mode = settings.mode and settings.mode or "os.loadAPI"
+
+    if(mode == "os.loadAPI") then
+      fs.copy(fs.combine(current, "dep/"..v.."/main.lua"), fs.combine(current, "dep/"..v.."/"..v))
+      os.loadAPI(fs.combine(current, "dep/"..v.."/"..v))
+      fs.delete(fs.combine(current, "dep/"..v.."/"..v))
+    elseif(mode == "dofile") then
+        namespace = settings.namespace and settings.namespace or v
+        _G[namespace] = dofile(fs.combine(current, "dep/"..v.."/main.lua"))
+    end
+
   end
 ]]
 
@@ -70,6 +84,7 @@ elseif(args[1] == "init") then
   ]])
   handle.close()
   fs.makeDir(fsc(dir,".glue"))
+  fs.makeDir(fsc(dir,".glue/dep"))
   handle = fs.open(fsc(dir,".glue/autoload.lua"),"w")
   handle.write(autoload_code)
   handle.close()
@@ -94,5 +109,81 @@ elseif(args[1] == "search") then
   end
   term.setTextColor(colors.white)
 elseif(args[1] == "install") then
+  local env = {mode = args[2]} -- so you can define if you want some drops to be only for development/production etc
 
+  local dependencies = {}
+  --dependency = {
+  --  name = "H4X0RZ/TestDrop",
+  --  version = "1",
+  --  mode = "dofile",
+  --  namespace = "JSON"
+  --}
+
+  currentDependency = nil
+
+  function env.depend(what)
+    if(currentDependency ~= nil) then
+      dependencies[#dependencies+1] = currentDependency
+    end
+    currentDependency = {name = what}
+  end
+
+  function env.version(ver)
+    if(currentDependency == nil) then error() end
+    currentDependency.version = ver
+  end
+
+  function env.method(mode)
+    if(currentDependency == nil) then error() end
+    currentDependency.mode = mode
+  end
+
+  function env.namespace(space)
+    if(currentDependency == nil) then error() end
+    currentDependency.namespace = space
+  end
+
+  local handle = fs.open(fsc(shell.dir(), "GlueFile"),"r")
+  local gluefile_content = handle.readAll()
+  handle.close()
+  local gluefile = load(gluefile_content, nil, nil, env)
+  gluefile()
+  dependencies[#dependencies+1] = currentDependency
+  for _,dependency in pairs(dependencies) do
+    term.setTextColor(colors.lightGray)
+    print("")
+    write("Searching for ".. dependency.name .. "... ")
+    response,code = request("get", "drops/exists", {name = dependency.name})
+    response = json.parse(response)
+    if(code == 200 and response.exists) then
+      term.setTextColor(colors.green)
+      write("FOUND")
+      print("")
+      term.setTextColor(colors.lightGray)
+      write("Downloading " .. dependency.name .. "... ")
+
+      drop_content,res_code = request("get", "drops/get", {name = dependency.name})
+      drop_content = json.parse(drop_content)
+
+      fs.makeDir(fsc(shell.dir(), ".glue/dep/" .. drop_content.name))
+      local handle = fs.open(fsc(shell.dir(), ".glue/dep/".. drop_content.name .. "/main.lua"), "w")
+      handle.write(drop_content.content)
+      handle.close()
+      handle = fs.open(fsc(shell.dir(), ".glue/dep/" .. drop_content.name .. "/settings.lua"), "w")
+      handle.write(textutils.serialize(dependency))
+      handle.close()
+
+      term.setTextColor(colors.green)
+      write("DONE")
+
+    else
+      term.setTextColor(colors.red)
+      write("ERROR")
+      print("")
+      print("")
+      term.setTextColor(colors.white)
+      print("Oh no, something went wrong!")
+      print("Couldn't find drop '" .. dependency.name .. "'")
+    end
+  end
 end
