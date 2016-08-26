@@ -119,7 +119,7 @@ elseif(args[1] == "install") then
 
   local dependencies = {}
   --dependency = {
-  --  name = "H4X0RZ/TestDrop",
+  --  name = "H4X0RZ/TestDrop", (or name = "TestDrop",)
   --  version = "1",
   --  method = "dofile",
   --  namespace = "JSON"
@@ -163,7 +163,7 @@ elseif(args[1] == "install") then
     term.setTextColor(colors.lightGray)
     print("")
     write("Searching for ".. dependency.name .. "... ")
-    response,code = request("get", "drops/exists", {name = dependency.name})
+    response,code = request("get", "drops/exists", {name = dependency.name, version = dependency.version})
     response = json.parse(response)
     if(code == 200 and response.exists) then
       term.setTextColor(colors.green)
@@ -197,7 +197,15 @@ elseif(args[1] == "install") then
       print("")
       term.setTextColor(colors.white)
       print("Oh no, something went wrong!")
-      print("Couldn't find drop '" .. dependency.name .. "'")
+      res,code = request("get","drops/exists",{name = dependency.name})
+      res = json.parse(res)
+      if(code == 200) then
+        if(res.exists == false) then
+            print("Couldn't find drop '" .. dependency.name .. "'")
+        else
+          print("Couldn't find version '" .. dependency.version .. "' for drop '" .. dependency.name .. "'")
+        end
+      end
     end
   end
 end
