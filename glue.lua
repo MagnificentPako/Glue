@@ -50,6 +50,8 @@ local autoload_code = [[
       fs.delete(fs.combine(current, "dep/"..v.."/"..namespace))
     elseif(method == "dofile") then
         _G[namespace] = dofile(fs.combine(current, "dep/"..v.."/main.lua"))
+    elseif(method == "ignore") then
+      continue
     end
 
   end
@@ -77,7 +79,7 @@ elseif(args[1] == "init") then
 --depend "json" version "1"
 --
 --You can also define how the dependency should be loaded
---Valid methods are: dofile and os.loadAPI
+--Valid methods are: dofile, os.loadAPI and ignore (ignore will only download the drop, but never load it. Useful if you download a binary/program as drop and want to execute it with custom args)
 --depend "json" method "dofile"
 --
 --dofile also has support for the "namepsace" method
