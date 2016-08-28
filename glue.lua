@@ -51,7 +51,7 @@ local autoload_code = [[
     elseif(method == "dofile") then
         _G[namespace] = dofile(fs.combine(current, "dep/"..v.."/main.lua"))
     elseif(method == "ignore") then
-      continue
+      
     end
 
   end
