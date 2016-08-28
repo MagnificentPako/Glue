@@ -193,7 +193,7 @@ elseif(args[1] == "install") then
       write("DONE")
 
     else
-      term.setTextColor(colors.red) Gl
+      term.setTextColor(colors.red)
       write("ERROR")
       print("")
       print("")
