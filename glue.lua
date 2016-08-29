@@ -1,5 +1,5 @@
 local args = {...}
-
+if(not shell) then shell = {dir = function() return "/" end} end
 local fsc = fs.combine
 local json = dofile("/usr/bin/json")
 
@@ -51,7 +51,7 @@ local autoload_code = [[
     elseif(method == "dofile") then
         _G[namespace] = dofile(fs.combine(current, "dep/"..v.."/main.lua"))
     elseif(method == "ignore") then
-      
+
     end
 
   end
